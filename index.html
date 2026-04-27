@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvoSpark - Professional Invoice Generator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --dark: #1e293b;
+            --light-bg: #f8fafc;
+            --border: #e2e8f0;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--light-bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* Site Header */
+        .site-header {
+            background: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        /* Main Container */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Top Controls */
+        .controls {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+            padding: 1.25rem;
+            border-radius: 12px;
+            gap: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .control-group { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+        
+        .input-box { display: flex; flex-direction: column; gap: 0.25rem; }
+        .input-box label { font-size: 12px; font-weight: 600; color: #64748b; }
+
+        .top-input, .currency-picker { 
+            padding: 0.6rem; 
+            border-radius: 8px; 
+            border: 1px solid var(--border); 
+            font-size: 14px;
+            background: #fdfdfd;
+        }
+
+        .download-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* Invoice Box */
+        .invoice-box {
+            background: var(--white);
+            width: 100%;
+            max-width: 850px;
+            min-height: 1000px;
+            padding: 3rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; }
+        
+        /* Logo Upload Area - Cleaned */
+        .logo-container {
+            width: 160px;
+            height: 80px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .logo-container:hover { border-color: var(--primary); }
+        .logo-container img { max-width: 100%; max-height: 100%; object-fit: contain; z-index: 2; }
+        .upload-text { position: absolute; font-size: 12px; color: #94a3b8; text-align: center; }
+
+        .invoice-title { text-align: right; }
+        .invoice-title h1 { margin: 0; color: var(--primary); font-size: 2.5rem; font-weight: 900; }
+
+        .info-section { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 2.5rem; }
+        .info-label { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .address-block { font-size: 14px; line-height: 1.6; color: #475569; }
+
+        /* Table */
+        .item-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .item-table th { background: var(--dark); color: var(--white); text-align: left; padding: 1rem; font-size: 13px; font-weight: 600; }
+        .item-table td { padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+
+        .btn-add { background: none; border: 1.5px solid var(--primary); color: var(--primary); padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 1rem; font-size: 13px; }
+
+        /* Summary */
+        .summary-wrapper { margin-left: auto; width: 100%; max-width: 300px; margin-top: 2rem; }
+        .summary-line { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 14px; }
+        .total-line { border-top: 2px solid var(--dark); margin-top: 0.75rem; padding-top: 0.75rem; font-weight: 800; font-size: 1.25rem; color: var(--primary); }
+
+        .spacer { flex: 1; min-height: 50px; }
+
+        .footer-note { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 2rem; }
+        .footer-note p { font-size: 13px; color: #64748b; margin: 0; }
+
+        /* Page Footer */
+        .page-footer { background: var(--white); border-top: 1px solid var(--border); padding: 1.5rem; text-align: center; color: #64748b; font-size: 14px; }
+
+        @media print {
+            body { background: white; }
+            .site-header, .page-footer, .controls, .btn-add, .delete-btn, .upload-text { display: none !important; }
+            .invoice-box { box-shadow: none; border: none; padding: 0; width: 100%; }
+            .logo-container { border: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+
+        .delete-btn { color: #ef4444; cursor: pointer; border: none; background: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="brand-name">InvoSpark</div>
+        <div style="font-size: 12px; color: #94a3b8;">Fast. Simple. Professional.</div>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <div class="input-box">
+                    <label>Currency</label>
+                    <select class="currency-picker" id="currencySelect">
+                        <option value="৳">BDT (৳)</option>
+                        <option value="$">USD ($)</option>
+                        <option value="€">EUR (€)</option>
+                        <option value="£">GBP (£)</option>
+                    </select>
+                </div>
+                <div class="input-box">
+                    <label>Tax (%)</label>
+                    <input type="number" id="taxInput" class="top-input" value="0">
+                </div>
+                <div class="input-box">
+                    <label>Discount (%)</label>
+                    <input type="number" id="discountInput" class="top-input" value="0">
+                </div>
+            </div>
+            <button class="download-btn" onclick="window.print()">Print Invoice</button>
+        </div>
+
+        <div class="invoice-box">
+            <div class="invoice-header">
+                <div class="logo-container" onclick="document.getElementById('fileInput').click()">
+                    <span class="upload-text" id="uploadPlaceholder">Upload Logo</span>
+                    <img id="mainLogo" src="" style="display: none;">
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                </div>
+                
+                <div class="invoice-title">
+                    <h1 contenteditable="true">INVOICE</h1>
+                    <div style="font-weight: 600;"># <span contenteditable="true">2026-001</span></div>
+                    <div style="font-size: 14px; color: #64748b;">Date: <span contenteditable="true">April 27, 2026</span></div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div>
+                    <div class="info-label">From</div>
+                    <div class="address-block" contenteditable="true">
+                        <strong>Your Company Name</strong><br>
+                        Your Address Line 1, City<br>
+                        Email: info@company.com<br>
+                        Phone: +880 1XXX-XXXXXX
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="info-label">Bill To</div>
+                    <div class="address-block" contenteditable="true">
+                        <strong>Client Name</strong><br>
+                        Client Address Line 1, City<br>
+                        Email: client@mail.com<br>
+                        Phone: +880 1XXX-XXXXXX
+                    </div>
+                </div>
+            </div>
+
+            <table class="item-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">Description</th>
+                        <th style="width: 10%;">Qty</th>
+                        <th style="width: 20%;">Price</th>
+                        <th style="width: 20%;">Total</th>
+                        <th class="no-print"></th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceItems">
+                    <tr>
+                        <td contenteditable="true">Project Consulting</td>
+                        <td contenteditable="true" class="qty">1</td>
+                        <td contenteditable="true" class="price">500.00</td>
+                        <td><span class="curr">৳</span><span class="row-total">500.00</span></td>
+                        <td class="no-print"><button class="delete-btn" onclick="removeRow(this)">×</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn-add no-print" onclick="addNewRow()">+ Add New Item</button>
+
+            <div class="summary-wrapper">
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span><span class="curr">৳</span><span id="subTotalDisplay">500.00</span></span>
+                </div>
+                <div class="summary-line">
+                    <span>Discount (<span id="discountRateLabel">0</span>%)</span>
+                    <span><span class="curr">৳</span><span id="discountAmountDisplay">0.00</span></span>
+                </div>
+                <div class="summary-line">
+                    <span>Tax (<span id="taxRateLabel">0</span>%)</span>
+                    <span><span class="curr">৳</span><span id="taxAmountDisplay">0.00</span></span>
+                </div>
+                <div class="summary-line total-line">
+                    <span>Total Due</span>
+                    <span><span class="curr">৳</span><span id="grandTotalDisplay">500.00</span></span>
+                </div>
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="footer-note">
+                <div class="info-label">Notes</div>
+                <p contenteditable="true">Payment is due within 15 days. Thank you for your business!</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        &copy; 2026 InvoSpark | Created by <strong>Subir Datta</strong>
+    </footer>
+
+    <script>
+        // Currency Selector logic
+        document.getElementById('currencySelect').addEventListener('change', function(e) {
+            document.querySelectorAll('.curr').forEach(el => el.innerText = e.target.value);
+        });
+
+        // Update calculations
+        function updateCalculations() {
+            let subtotal = 0;
+            document.querySelectorAll('#invoiceItems tr').forEach(row => {
+                const qty = parseFloat(row.querySelector('.qty').innerText) || 0;
+                const price = parseFloat(row.querySelector('.price').innerText) || 0;
+                const total = qty * price;
+                row.querySelector('.row-total').innerText = total.toFixed(2);
+                subtotal += total;
+            });
+
+            const taxRate = parseFloat(document.getElementById('taxInput').value) || 0;
+            const discRate = parseFloat(document.getElementById('discountInput').value) || 0;
+
+            document.getElementById('taxRateLabel').innerText = taxRate;
+            document.getElementById('discountRateLabel').innerText = discRate;
+
+            const discAmt = subtotal * (discRate / 100);
+            const taxAmt = (subtotal - discAmt) * (taxRate / 100);
+            const grandTotal = (subtotal - discAmt) + taxAmt;
+
+            document.getElementById('subTotalDisplay').innerText = subtotal.toFixed(2);
+            document.getElementById('discountAmountDisplay').innerText = discAmt.toFixed(2);
+            document.getElementById('taxAmountDisplay').innerText = taxAmt.toFixed(2);
+            document.getElementById('grandTotalDisplay').innerText = grandTotal.toFixed(2);
+        }
+
+        // Handle Input Changes
+        document.getElementById('taxInput').addEventListener('input', updateCalculations);
+        document.getElementById('discountInput').addEventListener('input', updateCalculations);
+        document.body.addEventListener('input', function(e) {
+            if (e.target.classList.contains('qty') || e.target.classList.contains('price')) {
+                updateCalculations();
+            }
+        });
+
+        // Logo Upload Fix
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = document.getElementById('mainLogo');
+                    const placeholder = document.getElementById('uploadPlaceholder');
+                    img.src = event.target.result;
+                    img.style.display = 'block';
+                    placeholder.style.display = 'none'; // আপলোড হলে টেক্সট হাইড হবে
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function addNewRow() {
+            const sym = document.getElementById('currencySelect').value;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td contenteditable="true">New Service/Item</td>
+                <td contenteditable="true" class="qty">1</td>
+                <td contenteditable="true" class="price">0.00</td>
+                <td><span class="curr">${sym}</span><span class="row-total">0.00</span></td>
+                <td class="no-print"><button class="delete-btn" onclick="removeRow(this)">×</button></td>`;
+            document.getElementById('invoiceItems').appendChild(tr);
+            updateCalculations();
+        }
+
+        function removeRow(btn) {
+            btn.closest('tr').remove();
+            updateCalculations();
+        }
+    </script>
+</body>
+</html>
