@@ -3,35 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InvoSpark - Professional Invoice Generator</title>
+    <title>InvoSpark | Professional Invoice Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
-            --dark: #1e293b;
-            --light-bg: #f8fafc;
-            --border: #e2e8f0;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --success: #059669;
+            --danger: #dc2626;
+            --bg: #f8fafc;
             --white: #ffffff;
+            --border: #e2e8f0;
         }
 
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--light-bg);
+            background-color: var(--bg);
             margin: 0;
+            padding: 0;
+            color: #1e293b;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            color: var(--dark);
         }
 
-        /* Site Header */
-        .site-header {
+        /* --- Header Design --- */
+        .main-header {
             background: var(--white);
-            padding: 1rem 2rem;
+            padding: 1rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .brand-name {
@@ -41,327 +49,292 @@
             letter-spacing: -0.5px;
         }
 
-        /* Main Container */
-        .container {
-            flex: 1;
+        /* --- Layout Container --- */
+        .app-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 2rem 1rem;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+            flex: 1;
             width: 100%;
-            box-sizing: border-box;
         }
 
-        /* Top Controls */
-        .controls {
-            width: 100%;
-            max-width: 850px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
+        @media (min-width: 1024px) {
+            .app-container { flex-direction: row; padding: 40px 5%; }
+        }
+
+        /* --- Control Panel (Responsive) --- */
+        .controls-panel {
             background: var(--white);
-            padding: 1.25rem;
+            padding: 20px;
             border-radius: 12px;
-            gap: 1rem;
             border: 1px solid var(--border);
-        }
-
-        .control-group { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
-        
-        .input-box { display: flex; flex-direction: column; gap: 0.25rem; }
-        .input-box label { font-size: 12px; font-weight: 600; color: #64748b; }
-
-        .top-input, .currency-picker { 
-            padding: 0.6rem; 
-            border-radius: 8px; 
-            border: 1px solid var(--border); 
-            font-size: 14px;
-            background: #fdfdfd;
-        }
-
-        .download-btn {
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        /* Invoice Box */
-        .invoice-box {
-            background: var(--white);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
             width: 100%;
-            max-width: 850px;
-            min-height: 1000px;
-            padding: 3rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        @media (min-width: 1024px) {
+            .controls-panel { width: 280px; grid-template-columns: 1fr; position: sticky; top: 100px; height: fit-content; }
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 11px; font-weight: 700; color: var(--secondary); text-transform: uppercase; }
+        .input-group select, .input-group input {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn-print {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            grid-column: 1 / -1; /* Mobile view full width */
+        }
+
+        /* --- Invoice Sheet (A4 Responsive) --- */
+        .invoice-sheet {
+            background: var(--white);
+            flex: 1;
+            padding: 30px;
+            border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
-            box-sizing: border-box;
-            border-radius: 8px;
-            border: 1px solid var(--border);
+            width: 100%;
+            overflow-x: hidden;
         }
 
-        .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; }
-        
-        /* Logo Upload Area - Cleaned */
-        .logo-container {
-            width: 160px;
-            height: 80px;
-            border: 2px dashed var(--border);
-            border-radius: 8px;
-            position: relative;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            transition: border-color 0.3s;
+        @media (max-width: 640px) {
+            .invoice-sheet { padding: 15px; }
+            .sheet-header { flex-direction: column; gap: 20px; }
+            .invoice-meta { text-align: left !important; }
+            .address-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+            .items-table { font-size: 12px; }
         }
-        .logo-container:hover { border-color: var(--primary); }
-        .logo-container img { max-width: 100%; max-height: 100%; object-fit: contain; z-index: 2; }
-        .upload-text { position: absolute; font-size: 12px; color: #94a3b8; text-align: center; }
 
-        .invoice-title { text-align: right; }
-        .invoice-title h1 { margin: 0; color: var(--primary); font-size: 2.5rem; font-weight: 900; }
+        .sheet-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .invoice-meta { text-align: right; }
+        .invoice-meta h1 { margin: 0; color: var(--primary); font-size: 32px; font-weight: 900; }
 
-        .info-section { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 2.5rem; }
-        .info-label { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; }
-        .address-block { font-size: 14px; line-height: 1.6; color: #475569; }
+        .address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .addr-title { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
 
-        /* Table */
-        .item-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        .item-table th { background: var(--dark); color: var(--white); text-align: left; padding: 1rem; font-size: 13px; font-weight: 600; }
-        .item-table td { padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        /* --- Table Styling --- */
+        .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 20px; }
+        .items-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .items-table th { background: #f8fafc; padding: 12px; text-align: left; font-size: 11px; color: var(--secondary); border-bottom: 2px solid var(--border); }
+        .items-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
 
-        .btn-add { background: none; border: 1.5px solid var(--primary); color: var(--primary); padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 1rem; font-size: 13px; }
+        .summary-box { margin-left: auto; width: 100%; max-width: 280px; margin-top: 20px; }
+        .summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+        .grand-total-row { border-top: 2px solid var(--primary); padding-top: 10px; font-weight: 800; font-size: 18px; color: var(--primary); }
 
-        /* Summary */
-        .summary-wrapper { margin-left: auto; width: 100%; max-width: 300px; margin-top: 2rem; }
-        .summary-line { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 14px; }
-        .total-line { border-top: 2px solid var(--dark); margin-top: 0.75rem; padding-top: 0.75rem; font-weight: 800; font-size: 1.25rem; color: var(--primary); }
+        /* Note Section */
+        .footer-note {
+            margin-top: 30px; 
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
 
-        .spacer { flex: 1; min-height: 50px; }
+        /* Footer */
+        .main-footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--secondary);
+            background: white;
+        }
 
-        .footer-note { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 2rem; }
-        .footer-note p { font-size: 13px; color: #64748b; margin: 0; }
-
-        /* Page Footer */
-        .page-footer { background: var(--white); border-top: 1px solid var(--border); padding: 1.5rem; text-align: center; color: #64748b; font-size: 14px; }
-
+        /* --- PRINT CSS --- */
         @media print {
-            body { background: white; }
-            .site-header, .page-footer, .controls, .btn-add, .delete-btn, .upload-text { display: none !important; }
-            .invoice-box { box-shadow: none; border: none; padding: 0; width: 100%; }
-            .logo-container { border: none !important; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { background: white; padding: 0; }
+            .main-header, .main-footer, .controls-panel, .no-print, .btn-add { display: none !important; }
+            .app-container { display: block; padding: 0; margin: 0; width: 100%; }
+            .invoice-sheet { box-shadow: none; border: none; padding: 0; width: 100%; }
+            
+            /* Apnar requested print adjustment */
+            .footer-note { 
+                margin-top: 60px !important; /* Base 50px + extra 10px increase */
+                page-break-inside: avoid;
+            }
+            .summary-box { page-break-inside: avoid; }
         }
 
-        .delete-btn { color: #ef4444; cursor: pointer; border: none; background: none; font-weight: bold; }
+        [contenteditable="true"] { padding: 2px; transition: 0.2s; }
+        [contenteditable="true"]:hover { background: #f1f5f9; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <header class="site-header">
+    <header class="main-header">
         <div class="brand-name">InvoSpark</div>
-        <div style="font-size: 12px; color: #94a3b8;">Fast. Simple. Professional.</div>
+        <div class="no-print" style="font-size: 12px; font-weight: 600; color: var(--success);">● Active Session</div>
     </header>
 
-    <div class="container">
-        <div class="controls">
-            <div class="control-group">
-                <div class="input-box">
-                    <label>Currency</label>
-                    <select class="currency-picker" id="currencySelect">
-                        <option value="৳">BDT (৳)</option>
-                        <option value="$">USD ($)</option>
-                        <option value="€">EUR (€)</option>
-                        <option value="£">GBP (£)</option>
-                    </select>
-                </div>
-                <div class="input-box">
-                    <label>Tax (%)</label>
-                    <input type="number" id="taxInput" class="top-input" value="0">
-                </div>
-                <div class="input-box">
-                    <label>Discount (%)</label>
-                    <input type="number" id="discountInput" class="top-input" value="0">
-                </div>
+    <div class="app-container">
+        <aside class="controls-panel">
+            <div class="input-group">
+                <label>Currency</label>
+                <select id="currSelect" onchange="updateCurr()">
+                    <option value="৳">BDT (৳)</option>
+                    <option value="$">USD ($)</option>
+                    <option value="€">EUR (€)</option>
+                    <option value="₹">INR (₹)</option>
+                    <option value="£">GBP (£)</option>
+                    <option value="﷼">SAR (﷼)</option>
+                </select>
             </div>
-            <button class="download-btn" onclick="window.print()">Print Invoice</button>
-        </div>
+            <div class="input-group">
+                <label>Tax (%)</label>
+                <input type="number" id="taxInp" value="0" oninput="calc()">
+            </div>
+            <div class="input-group">
+                <label>Discount (%)</label>
+                <input type="number" id="discInp" value="0" oninput="calc()">
+            </div>
+            <button class="btn-print" onclick="window.print()">Print / Download PDF</button>
+        </aside>
 
-        <div class="invoice-box">
-            <div class="invoice-header">
-                <div class="logo-container" onclick="document.getElementById('fileInput').click()">
-                    <span class="upload-text" id="uploadPlaceholder">Upload Logo</span>
-                    <img id="mainLogo" src="" style="display: none;">
-                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        <main class="invoice-sheet">
+            <div class="sheet-header">
+                <div style="width: 140px; height: 70px; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px;" onclick="document.getElementById('imgInp').click()">
+                    <span id="imgTxt" style="font-size: 10px; color: var(--secondary);">ADD LOGO</span>
+                    <img id="imgView" style="max-width: 100%; max-height: 100%; display: none;">
+                    <input type="file" id="imgInp" hidden accept="image/*">
                 </div>
-                
-                <div class="invoice-title">
+                <div class="invoice-meta">
                     <h1 contenteditable="true">INVOICE</h1>
-                    <div style="font-weight: 600;"># <span contenteditable="true">2026-001</span></div>
-                    <div style="font-size: 14px; color: #64748b;">Date: <span contenteditable="true">April 27, 2026</span></div>
+                    <p>No:<span contenteditable="true">2026-001</span></p>
+                    <p style="font-size: 13px; color: var(--secondary);">Date: <span contenteditable="true">April 28, 2026</span></p>
                 </div>
             </div>
 
-            <div class="info-section">
+            <div class="address-grid">
                 <div>
-                    <div class="info-label">From</div>
-                    <div class="address-block" contenteditable="true">
-                        <strong>Your Company Name</strong><br>
-                        Your Address Line 1, City<br>
-                        Email: info@company.com<br>
-                        Phone: +880 1XXX-XXXXXX
+                    <div class="addr-title">Issuer</div>
+                    <div contenteditable="true" style="font-size: 14px;">
+                        <strong>Subir Datta</strong><br>
+                        Narsingdi, Bangladesh<br>
+                        subir@dev.com
                     </div>
                 </div>
                 <div style="text-align: right;">
-                    <div class="info-label">Bill To</div>
-                    <div class="address-block" contenteditable="true">
+                    <div class="addr-title">Recipient</div>
+                    <div contenteditable="true" style="font-size: 14px;">
                         <strong>Client Name</strong><br>
-                        Client Address Line 1, City<br>
-                        Email: client@mail.com<br>
-                        Phone: +880 1XXX-XXXXXX
+                        Client Address Line<br>
+                        client@mail.com
                     </div>
                 </div>
             </div>
 
-            <table class="item-table">
-                <thead>
-                    <tr>
-                        <th style="width: 50%;">Description</th>
-                        <th style="width: 10%;">Qty</th>
-                        <th style="width: 20%;">Price</th>
-                        <th style="width: 20%;">Total</th>
-                        <th class="no-print"></th>
-                    </tr>
-                </thead>
-                <tbody id="invoiceItems">
-                    <tr>
-                        <td contenteditable="true">Project Consulting</td>
-                        <td contenteditable="true" class="qty">1</td>
-                        <td contenteditable="true" class="price">500.00</td>
-                        <td><span class="curr">৳</span><span class="row-total">500.00</span></td>
-                        <td class="no-print"><button class="delete-btn" onclick="removeRow(this)">×</button></td>
-                    </tr>
-                </tbody>
-            </table>
-            <button class="btn-add no-print" onclick="addNewRow()">+ Add New Item</button>
-
-            <div class="summary-wrapper">
-                <div class="summary-line">
-                    <span>Subtotal</span>
-                    <span><span class="curr">৳</span><span id="subTotalDisplay">500.00</span></span>
-                </div>
-                <div class="summary-line">
-                    <span>Discount (<span id="discountRateLabel">0</span>%)</span>
-                    <span><span class="curr">৳</span><span id="discountAmountDisplay">0.00</span></span>
-                </div>
-                <div class="summary-line">
-                    <span>Tax (<span id="taxRateLabel">0</span>%)</span>
-                    <span><span class="curr">৳</span><span id="taxAmountDisplay">0.00</span></span>
-                </div>
-                <div class="summary-line total-line">
-                    <span>Total </span>
-                    <span><span class="curr">৳</span><span id="grandTotalDisplay">500.00</span></span>
-                </div>
+            <div class="table-responsive">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th style="width: 60px; text-align: center;">Qty</th>
+                            <th style="width: 120px; text-align: right;">Price</th>
+                            <th style="width: 120px; text-align: right;">Total</th>
+                            <th class="no-print" style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemList">
+                        <tr>
+                            <td contenteditable="true">Service or Product Name</td>
+                            <td contenteditable="true" class="q" style="text-align: center;" oninput="calc()">1</td>
+                            <td contenteditable="true" class="p" style="text-align: right;" oninput="calc()">1000.00</td>
+                            <td style="text-align: right;"><span class="c">৳</span><span class="t">1000.00</span></td>
+                            <td class="no-print" style="text-align: center;"><button onclick="this.parentElement.parentElement.remove(); calc();" style="color:var(--danger); border:none; background:none; cursor:pointer;">×</button></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="spacer"></div>
+            <button class="no-print btn-add" onclick="addRow()" style="background: none; border: 1px dashed var(--primary); color: var(--primary); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">+ Add Row</button>
+
+            <div class="summary-box">
+                <div class="summary-row"><span>Subtotal</span><span><span class="c">৳</span><span id="subT">1000.00</span></span></div>
+                <div class="summary-row" style="color: var(--success);"><span>Discount (<span id="dL">0</span>%)</span><span>- <span class="c">৳</span><span id="dV">0.00</span></span></div>
+                <div class="summary-row"><span>Tax (<span id="tL">0</span>%)</span><span>+ <span class="c">৳</span><span id="tV">0.00</span></span></div>
+                <div class="summary-row grand-total-row"><span>Grand Total</span><span><span class="c">৳</span><span id="gT">1000.00</span></span></div>
+            </div>
 
             <div class="footer-note">
-                <div class="info-label">Notes</div>
-                <p contenteditable="true">Payment is due within 15 days. Thank you for your business!</p>
+                <div class="addr-title">Notes</div>
+                <div contenteditable="true" style="font-size: 13px; color: var(--secondary); line-height: 1.5;">
+                    Thank you for your business. Please settle the invoice within 14 days.
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <footer class="page-footer">
-        &copy; 2026 InvoSpark | Created by <strong>Subir Datta</strong>
+    <footer class="main-footer">
+        Application by <strong>Subir Datta</strong> | InvoSpark &copy; 2026
     </footer>
 
     <script>
-        // Currency Selector logic
-        document.getElementById('currencySelect').addEventListener('change', function(e) {
-            document.querySelectorAll('.curr').forEach(el => el.innerText = e.target.value);
-        });
-
-        // Update calculations
-        function updateCalculations() {
-            let subtotal = 0;
-            document.querySelectorAll('#invoiceItems tr').forEach(row => {
-                const qty = parseFloat(row.querySelector('.qty').innerText) || 0;
-                const price = parseFloat(row.querySelector('.price').innerText) || 0;
-                const total = qty * price;
-                row.querySelector('.row-total').innerText = total.toFixed(2);
-                subtotal += total;
+        function calc() {
+            let sub = 0;
+            document.querySelectorAll('#itemList tr').forEach(r => {
+                let q = parseFloat(r.querySelector('.q').innerText) || 0;
+                let p = parseFloat(r.querySelector('.p').innerText) || 0;
+                let t = q * p;
+                r.querySelector('.t').innerText = t.toFixed(2);
+                sub += t;
             });
 
-            const taxRate = parseFloat(document.getElementById('taxInput').value) || 0;
-            const discRate = parseFloat(document.getElementById('discountInput').value) || 0;
+            let txR = parseFloat(document.getElementById('taxInp').value) || 0;
+            let dsR = parseFloat(document.getElementById('discInp').value) || 0;
+            let dsV = sub * (dsR / 100);
+            let txV = (sub - dsV) * (txR / 100);
+            let grand = (sub - dsV) + txV;
 
-            document.getElementById('taxRateLabel').innerText = taxRate;
-            document.getElementById('discountRateLabel').innerText = discRate;
-
-            const discAmt = subtotal * (discRate / 100);
-            const taxAmt = (subtotal - discAmt) * (taxRate / 100);
-            const grandTotal = (subtotal - discAmt) + taxAmt;
-
-            document.getElementById('subTotalDisplay').innerText = subtotal.toFixed(2);
-            document.getElementById('discountAmountDisplay').innerText = discAmt.toFixed(2);
-            document.getElementById('taxAmountDisplay').innerText = taxAmt.toFixed(2);
-            document.getElementById('grandTotalDisplay').innerText = grandTotal.toFixed(2);
+            document.getElementById('subT').innerText = sub.toFixed(2);
+            document.getElementById('dV').innerText = dsV.toFixed(2);
+            document.getElementById('tV').innerText = txV.toFixed(2);
+            document.getElementById('gT').innerText = grand.toFixed(2);
+            document.getElementById('dL').innerText = dsR;
+            document.getElementById('tL').innerText = txR;
         }
 
-        // Handle Input Changes
-        document.getElementById('taxInput').addEventListener('input', updateCalculations);
-        document.getElementById('discountInput').addEventListener('input', updateCalculations);
-        document.body.addEventListener('input', function(e) {
-            if (e.target.classList.contains('qty') || e.target.classList.contains('price')) {
-                updateCalculations();
+        function addRow() {
+            let s = document.getElementById('currSelect').value;
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td contenteditable="true">New Item</td><td contenteditable="true" class="q" style="text-align:center;" oninput="calc()">1</td><td contenteditable="true" class="p" style="text-align:right;" oninput="calc()">0.00</td><td style="text-align:right;"><span class="c">${s}</span><span class="t">0.00</span></td><td class="no-print" style="text-align:center;"><button onclick="this.parentElement.parentElement.remove(); calc();" style="color:var(--danger); border:none; background:none; cursor:pointer;">×</button></td>`;
+            document.getElementById('itemList').appendChild(tr);
+        }
+
+        function updateCurr() {
+            let s = document.getElementById('currSelect').value;
+            document.querySelectorAll('.c').forEach(el => el.innerText = s);
+        }
+
+        document.getElementById('imgInp').onchange = function(e) {
+            let f = e.target.files[0];
+            if (f) {
+                let r = new FileReader();
+                r.onload = function(ev) {
+                    document.getElementById('imgView').src = ev.target.result;
+                    document.getElementById('imgView').style.display = 'block';
+                    document.getElementById('imgTxt').style.display = 'none';
+                };
+                r.readAsDataURL(f);
             }
-        });
-
-        // Logo Upload Fix
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = document.getElementById('mainLogo');
-                    const placeholder = document.getElementById('uploadPlaceholder');
-                    img.src = event.target.result;
-                    img.style.display = 'block';
-                    placeholder.style.display = 'none'; // আপলোড হলে টেক্সট হাইড হবে
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        function addNewRow() {
-            const sym = document.getElementById('currencySelect').value;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td contenteditable="true">New Service/Item</td>
-                <td contenteditable="true" class="qty">1</td>
-                <td contenteditable="true" class="price">0.00</td>
-                <td><span class="curr">${sym}</span><span class="row-total">0.00</span></td>
-                <td class="no-print"><button class="delete-btn" onclick="removeRow(this)">×</button></td>`;
-            document.getElementById('invoiceItems').appendChild(tr);
-            updateCalculations();
-        }
-
-        function removeRow(btn) {
-            btn.closest('tr').remove();
-            updateCalculations();
-        }
+        };
     </script>
 </body>
 </html>
+
